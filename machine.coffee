@@ -1,12 +1,20 @@
 class SimpleMachine
 	constructor: () ->
+		# Initialize the registers and the memory with 0's
 		@registers = (0 for num in [1..16])
+		# The memory is a 16x16 array
 		@memory = ((0 for num in [1..16]) for x in [1..16])
 		@program = []
+		#program starts at A0
+		@program_counter = 0xA0
 
 	run: () ->
-		for statement in @program
+		halting = false
+		while not halting
+			statement = @program[@program_counter]
 			@instructions[statement[0]].function.apply(this, statement[1..3])
+			halting = statement[0] == 0xC #HALT
+			@program_counter += 1
 
 	read_register: (r) -> @registers[r]
 	read_memory: (x, y) -> @memory[x][y]
@@ -18,9 +26,9 @@ class SimpleMachine
 	or_values: (x,y) -> x | y
 	and_values: (x,y) -> x & y
 	xor_values: (x,y) -> x ^ y
-	rot_value: (v,x) -> 0 # figure out
-	jump: (x) -> #figure out
-	halt: () -> #figure out
+	rot_value: (v,x) -> v >> 1 | (v & 1 << 31)
+	jump: (x) -> @program_counter = x - 1 # will be executed next step
+	halt: () -> #do nothing
 
 	instructions:
 		1:
