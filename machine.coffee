@@ -4,7 +4,6 @@ class SimpleMachine
 		@registers = (0 for num in [1..16])
 		# The memory is a 16x16 array
 		@memory = ((0 for num in [1..16]) for x in [1..16])
-		@program = []
 		#program starts at A0
 		@program_counter = 0xA0
 		@instruction_register = []
@@ -13,15 +12,16 @@ class SimpleMachine
 		halting = false
 		while not halting
 			# Split address into array coordinates
-			[c_1, c2] = @split_bytes(@program_counter)
-			# Split cells into instruction register fields
-			@instruction_register = @split_bytes(@memory[c_1][c_2]).concat(@split_bytes(@memory[c_1][c_2 + 1]))
+			[c_1, c2] = @split_byte(@program_counter)
+			# Split cells into instruction register fields (which are 4-bits)
+			@instruction_register = @split_byte(@memory[c_1][c_2]).concat(@split_byte(@memory[c_1][c_2 + 1]))
 			# Execute function of instruction
 			@instructions[@instruction_register[0]].function.apply(this, @instruction_register[1..3])
 			halting = statement[0] == 0xC #HALT
 			@increase_program_counter()
 
 	increase_program_counter: () ->
+		# A instruction is 2 bytes (4 nibbles)
 		@program_counter += 2
 
 	load: (program) ->
@@ -34,15 +34,15 @@ class SimpleMachine
 	read_memory: (x, y) -> @memory[x][y]
 	store_register: (r, value) -> @registers[r] = value
 	store_memory: (x, y, value) -> @memory[x][y] = value
-	join_bytes: (x, y) -> x << 8 | y
-	split_bytes: (v) -> [v >> 8, v & 0xFF]
+	join_nibbles: (x, y) -> x << 4 | y
+	split_byte: (v) -> [v >> 4, v & 0xF]
 	add_integers: (x,y) -> x + y
 	add_floats: (x,y) -> 0 # figure out
 	or_values: (x,y) -> x | y
 	and_values: (x,y) -> x & y
 	xor_values: (x,y) -> x ^ y
-	rot_value: (v,x) -> v >> 1 | (v & 1 << 31)
-	jump: (x) -> @program_counter = x - 1 # will be executed next step
+	rot_value: (v,x) -> v >> 1 | (v & 1 << 7)
+	jump: (x) -> @program_counter = x - 2 # will be executed next step
 	halt: () -> #do nothing
 
 	instructions:
@@ -53,7 +53,7 @@ class SimpleMachine
 		2:
 			description: "LOAD register R with value XY"
 			operand: "RXY"
-			function: (r,x,y) -> @store_register(r, @join_bytes(x,y))
+			function: (r,x,y) -> @store_register(r, @join_nibbles(x,y))
 		3:
 			description: "STORE contents of register R in memorycell XY"
 			operand: "RXY"
