@@ -24,8 +24,48 @@ class SimpleMachine
 		# A instruction is 2 bytes (4 nibbles)
 		@program_counter += 2
 
-	load: (program) ->
-		0xA0
+	# Parses an assembler string into an array of bytes
+	assemble: (string) ->
+		assembly = []
+		labels = {}
+		position = 0xA0
+		
+		parse_line = (line) ->
+			[label, instruction] = line.split(':')
+			if instruction then
+				parse_label label
+			else
+				instruction = label
+			parse_instruction instruction.split(';')[0]
+
+		parse_instruction = (instruction) ->
+			[instruction, rest...] = instruction.split(/(\W|=|,)+/)
+			switch instruction
+				when "load" then
+				when "store" then
+				when "move" then
+				when "addi" then
+				when "addf" then
+				when "or" then
+				when "and" then
+				when "xor" then
+				when "ror" then
+				when "jmpEQ" then
+				when "halt" then
+				else
+					#syntax error !?!$?@#!@?$!
+
+
+		for line in string.split('\n')
+			parse_line line
+			position += 2
+
+	# Reads an assembly as an array of bytes into memory from offset 0xA0
+	load: (assembly) ->
+		for statement, i in assembly
+			[i_1, i_2] = split_byte(i * 2)
+			@memory[i_1 + 0xA][i_2] = statement[0]
+			@memory[i_1 + 0xA][i_2 + 1] = statement[1]
 
 	##
 	#  We have the implementations of the actions in seperate methods so we can hook them for step through representations
