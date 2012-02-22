@@ -12,12 +12,12 @@ class SimpleMachine
 		halting = false
 		while not halting
 			# Split address into array coordinates
-			[c_1, c2] = @split_byte(@program_counter)
+			[c_1, c_2] = @split_byte(@program_counter)
 			# Split cells into instruction register fields (which are 4-bits)
 			@instruction_register = @split_byte(@memory[c_1][c_2]).concat(@split_byte(@memory[c_1][c_2 + 1]))
 			# Execute function of instruction
 			@instructions[@instruction_register[0]].function.apply(this, @instruction_register[1..3])
-			halting = statement[0] == 0xC #HALT
+			halting = @instruction_register[0] == 0xC #HALT
 			@increase_program_counter()
 
 	increase_program_counter: () ->
@@ -31,41 +31,108 @@ class SimpleMachine
 		position = 0xA0
 		
 		parse_line = (line) ->
-			[label, instruction] = line.split(':')
-			if instruction then
-				parse_label label
+			[label, rest] = line.split(':')
+			if rest
+				labels[label] = position
 			else
-				instruction = label
-			parse_instruction instruction.split(';')[0]
+				rest = label
+			parse_statement rest.split(';')[0]
 
-		parse_instruction = (instruction) ->
-			[instruction, rest...] = instruction.split(/(\W|=|,)+/)
+		parse_statement = (statement) ->
+			if not statement then return
+			[instruction, operand...] = statement.split(/[\W+|=|,]+/)
 			switch instruction
-				when "load" then
-				when "store" then
-				when "move" then
-				when "addi" then
-				when "addf" then
-				when "or" then
-				when "and" then
-				when "xor" then
-				when "ror" then
-				when "jmpEQ" then
-				when "halt" then
+				when "load"
+					register = parse_register(operand[0])
+					if address = parse_address(operand[1])
+						assembly.push join_nibbles(1, register)
+						assembly.push address
+					else if pattern = parse_pattern(operand[1])
+						assembly.push join_nibbles(2, register)
+						assembly.push pattern
+				when "store"
+					register = parse_register(operand[0])
+					address = parse_address(operand[1])
+					assembly.push join_nibbles(3, register)
+					assembly.push address
+				when "move"
+					r = parse_register(operand[1])
+					s = parse_register(operand[0])
+					assembly.push join_nibbles(4,0)
+					join_nibbles(s,r)
+				when "addi"
+					[r,s,t] = parse_register(r) for r in operand
+					assembly.push join_nibbles(5, r)
+					assembly.push join_nibbles(s,t)
+				when "addf"
+					[r,s,t] = parse_register(r) for r in operand
+					assembly.push join_nibbles(6, r)
+					assembly.push join_nibbles(s,t)
+				when "or"
+					[r,s,t] = parse_register(r) for r in operand
+					assembly.push join_nibbles(7, r)
+					assembly.push join_nibbles(s,t)
+				when "and"
+					[r,s,t] = parse_register(r) for r in operand
+					assembly.push join_nibbles(8, r)
+					assembly.push join_nibbles(s,t)
+				when "xor"
+					[r,s,t] = parse_register(r) for r in operand
+					assembly.push join_nibbles(9, r)
+					assembly.push join_nibbles(s,t)
+				when "ror"
+					r = parse_register(operand[0])
+					x = parseInt(operand[1])
+					assembly.push join_nibbles(0xA,r)
+					assembly.push x
+				when "jmpEQ"
+					r = parse_register(operand[0])
+					t = parse_pattern(operand[2])
+					assembly.push join_nibbles(0xB,r)
+					assembly.push t
+				when "halt"
+					assembly.push join_nibbles(0xC,0)
+					assembly.push 0
 				else
-					#syntax error !?!$?@#!@?$!
+					#syntax error !?!$?#!?$!
+			position += 2
 
+		parse_register = (operand) ->
+			match = operand.match /[R|r](\d+)/
+			register = match[1] if match
+			parseInt(register) if register
+
+		parse_pattern = (operand) ->
+			match = operand.match /[0-9a-fA-F]+/
+			pattern = match[0] if match
+			if pattern
+				parseInt(pattern)
+			else
+				match = operand.match /\w+/
+				match[0] if match
+
+		parse_address = (operand) ->
+			match = operand.match /\[([0-9a-fA-F]+)\]/
+			[m, address] = match if match
+			parseInt(address) if address
+
+		join_nibbles = @join_nibbles
 
 		for line in string.split('\n')
 			parse_line line
-			position += 2
+
+		# Patch in the labels
+		for byte,i in assembly
+			if byte.length? #is string
+				assembly[i] = labels[byte]
+
+		assembly
 
 	# Reads an assembly as an array of bytes into memory from offset 0xA0
 	load: (assembly) ->
-		for statement, i in assembly
-			[i_1, i_2] = split_byte(i * 2)
-			@memory[i_1 + 0xA][i_2] = statement[0]
-			@memory[i_1 + 0xA][i_2 + 1] = statement[1]
+		for byte, i in assembly
+			[i_1, i_2] = @split_byte(i)
+			@memory[i_1 + 0xA][i_2] = byte
 
 	##
 	#  We have the implementations of the actions in seperate methods so we can hook them for step through representations
@@ -136,4 +203,13 @@ class SimpleMachine
 			function: () -> @halt()
 
 exports.SimpleMachine = SimpleMachine
-exports.s = new SimpleMachine
+
+s = new SimpleMachine
+b = s.assemble("load r1,1\nhalt")
+s.load b
+s.run()
+console.log("Assembly: " + b)
+console.log("Registers: " + s.registers)
+console.log("Assembly: ")
+for row in s.memory
+	console.log row
