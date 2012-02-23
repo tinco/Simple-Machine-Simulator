@@ -90,9 +90,19 @@ class SimpleMachine
 					t = parse_pattern(operand[2])
 					assembly.push join_nibbles(0xB,r)
 					assembly.push t
+				when "jmpLE"
+					r = parse_register(operand[0])
+					t = parse_pattern(operand[2])
+					assembly.push join_nibbles(0xF,r)
+					assembly.push t
+				when "jmp"
+					t = parse_pattern(operand[1])
+					assembly.push join_nibbles(0xB,0)
+					assembly.push t
 				when "halt"
 					assembly.push join_nibbles(0xC,0)
 					assembly.push 0
+				when "db"
 				else
 					#syntax error !?!$?#!?$!
 			position += 2
@@ -201,6 +211,18 @@ class SimpleMachine
 			description: "HALT execution"
 			operand: "000"
 			function: () -> @halt()
+		0xD:
+			description: "LOAD the contents of memory cell at the address in register S into register R"
+			operand: "0RS"
+			function: (r,s) -> @store_register(r,@read_memory(read_register(s)))
+		0xE:
+			description: "STORE the contents of register R in the memory cell at the address in register S"
+			operand: "0RS"
+			function: (r,s) -> @store_memory(read_register(r), read_register(s))
+		0xF:
+			description: "JUMP to the instruction located in the memory cell at address XY if the contents of register R is lower than or equal to the contents of register 0"
+			operand: "RXY"
+			function: (r,x,y) -> if @read_register(r) <= @read_register(0) then @jump(@read_memory(x,y))
 
 exports.SimpleMachine = SimpleMachine
 
