@@ -28,12 +28,12 @@ class SimpleMachine
 	assemble: (string) ->
 		assembly = []
 		labels = {}
-		position = 0xA0
+		offset = 0xA0
 		
 		parse_line = (line) ->
 			[label, rest] = line.split(':')
 			if rest
-				labels[label] = position
+				labels[label] = assembly.length + offset
 			else
 				rest = label
 			parse_statement rest.split(';')[0]
@@ -103,20 +103,21 @@ class SimpleMachine
 					assembly.push join_nibbles(0xC,0)
 					assembly.push 0
 				when "db"
+					[before, data] = statement.split "db"
+					parse_data data	
 				else
 					#syntax error !?!$?#!?$!
-			position += 2
 
 		parse_register = (operand) ->
 			match = operand.match /[R|r](\d+)/
 			register = match[1] if match
-			parseInt(register) if register
+			parse_value(register) if register
 
 		parse_pattern = (operand) ->
 			match = operand.match /[0-9a-fA-F]+/
 			pattern = match[0] if match
 			if pattern
-				parseInt(pattern)
+				parse_value(pattern)
 			else
 				match = operand.match /\w+/
 				match[0] if match
@@ -124,7 +125,18 @@ class SimpleMachine
 		parse_address = (operand) ->
 			match = operand.match /\[([0-9a-fA-F]+)\]/
 			[m, address] = match if match
-			parseInt(address) if address
+			parse_value(address) if address
+
+		parse_data = (data) ->
+			match = data.match /(".*"|\d+)/g
+			for operand in match
+				if operand[0] == '"'
+					assembly.push(operand.charCodeAt(i)) for v,i in operand[1..-2]
+				else
+					assembly.push parse_value(operand)
+
+		parse_value = (value) ->
+			parseInt('0x' + value)
 
 		join_nibbles = @join_nibbles
 
