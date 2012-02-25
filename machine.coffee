@@ -22,7 +22,6 @@ class SimpleMachine
 			# Split cells into instruction register fields (which are 4-bits)
 			@instruction_register = @split_byte(@memory[c_1][c_2]).concat(@split_byte(@memory[c_1][c_2 + 1]))
 			# Execute function of instruction
-			console.log('executing: ' + @instruction_register)
 			@instructions[@instruction_register[0]].function.apply(this, @instruction_register[1..3])
 			halting = @instruction_register[0] == 0xC #HALT
 			@increase_program_counter()
@@ -52,8 +51,12 @@ class SimpleMachine
 				when "load"
 					register = parse_register(operand[0])
 					if (address = parse_address(operand[1]))?
-						assembly.push join_nibbles(1, register)
-						assembly.push address
+						if (s = parse_register(address))?
+							assembly.push join_nibbles(0xD, 0)
+							assembly.push join_nibbles(register, s)
+						else
+							assembly.push join_nibbles(1, register)
+							assembly.push parse_pattern(address)
 					else if (pattern = parse_pattern(operand[1]))?
 						assembly.push join_nibbles(2, register)
 						assembly.push pattern
@@ -68,23 +71,23 @@ class SimpleMachine
 					assembly.push join_nibbles(4,0)
 					assembly.push join_nibbles(s,r)
 				when "addi"
-					[r,s,t] = parse_register(r) for r in operand
+					[r,s,t] = (parse_register(r) for r in operand)
 					assembly.push join_nibbles(5, r)
 					assembly.push join_nibbles(s,t)
 				when "addf"
-					[r,s,t] = parse_register(r) for r in operand
+					[r,s,t] = (parse_register(r) for r in operand)
 					assembly.push join_nibbles(6, r)
 					assembly.push join_nibbles(s,t)
 				when "or"
-					[r,s,t] = parse_register(r) for r in operand
+					[r,s,t] = (parse_register(r) for r in operand)
 					assembly.push join_nibbles(7, r)
 					assembly.push join_nibbles(s,t)
 				when "and"
-					[r,s,t] = parse_register(r) for r in operand
+					[r,s,t] = (parse_register(r) for r in operand)
 					assembly.push join_nibbles(8, r)
 					assembly.push join_nibbles(s,t)
 				when "xor"
-					[r,s,t] = parse_register(r) for r in operand
+					[r,s,t] = (parse_register(r) for r in operand)
 					assembly.push join_nibbles(9, r)
 					assembly.push join_nibbles(s,t)
 				when "ror"
@@ -116,7 +119,7 @@ class SimpleMachine
 					#syntax error !?!$?#!?$!
 
 		parse_register = (operand) ->
-			match = operand.match /[R|r](\d+)/
+			match = operand.match /[R|r]([0-9a-fA-F])/
 			register = match[1] if match?
 			parse_value(register) if register?
 
@@ -132,16 +135,13 @@ class SimpleMachine
 		parse_address = (operand) ->
 			match = operand.match /\[(.*)\]/
 			contents = match[1] if match?
-			if contents?
-				result = parse_register(contents)
-				result = parse_pattern(contents) unless result?
-			result
+			contents
 
 		parse_data = (data) ->
-			match = data.match /(".*"|\d+)/g
+			match = data.match /(".*"|[0-9a-fA-F]{1,2})/g
 			for operand in match
 				if operand[0] == '"'
-					assembly.push(operand.charCodeAt(i)) for v,i in operand[1..-2]
+					assembly.push(operand.charCodeAt(i)) for v,i in operand[1..-1]
 				else
 					assembly.push parse_value(operand)
 
@@ -173,7 +173,10 @@ class SimpleMachine
 	##
 	read_register: (r) -> @registers[r]
 	read_memory: (x, y) -> @memory[x][y]
-	store_register: (r, value) -> @registers[r] = value
+	store_register: (r, value) ->
+		@registers[r] = value
+		if r == 0xF
+			console.log(String.fromCharCode(value))
 	store_memory: (x, y, value) -> @memory[x][y] = value
 	join_nibbles: (x, y) -> x << 4 | y
 	split_byte: (v) -> [v >> 4, v & 0xF]
@@ -190,7 +193,8 @@ class SimpleMachine
 		1:
 			description: "LOAD register R with contents of memorycell XY"
 			operand: "RXY"
-			function: (r,x,y) -> @store_register(r, @read_memory(x,y,))
+			function: (r,x,y) ->
+				@store_register(r, @read_memory(x,y))
 		2:
 			description: "LOAD register R with value XY"
 			operand: "RXY"
@@ -238,11 +242,11 @@ class SimpleMachine
 		0xD:
 			description: "LOAD the contents of memory cell at the address in register S into register R"
 			operand: "0RS"
-			function: (r,s) -> @store_register(r,@read_memory(read_register(s)))
+			function: (n,r,s) ->[a_1,a_2] = @split_byte(@read_register(s)); @store_register(r,@read_memory(a_1, a_2))
 		0xE:
 			description: "STORE the contents of register R in the memory cell at the address in register S"
 			operand: "0RS"
-			function: (r,s) -> @store_memory(read_register(r), read_register(s))
+			function: (n,r,s) -> @store_memory(read_register(r), read_register(s))
 		0xF:
 			description: "JUMP to the instruction located in the memory cell at address XY if the contents of register R is lower than or equal to the contents of register 0"
 			operand: "RXY"
