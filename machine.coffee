@@ -1,11 +1,17 @@
 class SimpleMachine
+	PROGRAM_START = 0x00 # The memory address of the first instruction
+	STATEMENT_SIZE = 2 # Two bytes per statement
+	REGISTERS = 16
+	MEMORY_WIDTH = 16
+	MEMORY_HEIGHT = 16
+
 	constructor: () ->
 		# Initialize the registers and the memory with 0's
-		@registers = (0 for num in [1..16])
+		@registers = (0 for num in [1..REGISTERS])
 		# The memory is a 16x16 array
-		@memory = ((0 for num in [1..16]) for x in [1..16])
-		#program starts at A0
-		@program_counter = 0xA0
+		@memory = ((0 for num in [1..MEMORY_WIDTH]) for x in [1..MEMORY_HEIGHT])
+		#program starts at 00
+		@program_counter = PROGRAM_START
 		@instruction_register = []
 
 	run: () ->
@@ -16,38 +22,39 @@ class SimpleMachine
 			# Split cells into instruction register fields (which are 4-bits)
 			@instruction_register = @split_byte(@memory[c_1][c_2]).concat(@split_byte(@memory[c_1][c_2 + 1]))
 			# Execute function of instruction
+			console.log('executing: ' + @instruction_register)
 			@instructions[@instruction_register[0]].function.apply(this, @instruction_register[1..3])
 			halting = @instruction_register[0] == 0xC #HALT
 			@increase_program_counter()
 
 	increase_program_counter: () ->
-		# A instruction is 2 bytes (4 nibbles)
-		@program_counter += 2
+		@program_counter += STATEMENT_SIZE
 
 	# Parses an assembler string into an array of bytes
 	assemble: (string) ->
 		assembly = []
 		labels = {}
-		offset = 0xA0
+		offset = PROGRAM_START
 		
 		parse_line = (line) ->
-			[label, rest] = line.split(':')
+			[label, rest] = line.split(':') #TODO Breaks string
 			if rest
 				labels[label] = assembly.length + offset
 			else
 				rest = label
-			parse_statement rest.split(';')[0]
+			parse_statement rest.split(';')[0] #TODO Breaks string
 
 		parse_statement = (statement) ->
 			if not statement then return
-			[instruction, operand...] = statement.split(/[\W+|=|,]+/)
+			[instruction, operand...] = statement.match(/[^\s|=|,]+/g)
+			#console.log 'instruction: ' + instruction + ' operand: ' + operand
 			switch instruction
 				when "load"
 					register = parse_register(operand[0])
-					if address = parse_address(operand[1])
+					if (address = parse_address(operand[1]))?
 						assembly.push join_nibbles(1, register)
 						assembly.push address
-					else if pattern = parse_pattern(operand[1])
+					else if (pattern = parse_pattern(operand[1]))?
 						assembly.push join_nibbles(2, register)
 						assembly.push pattern
 				when "store"
@@ -59,7 +66,7 @@ class SimpleMachine
 					r = parse_register(operand[1])
 					s = parse_register(operand[0])
 					assembly.push join_nibbles(4,0)
-					join_nibbles(s,r)
+					assembly.push join_nibbles(s,r)
 				when "addi"
 					[r,s,t] = parse_register(r) for r in operand
 					assembly.push join_nibbles(5, r)
@@ -96,7 +103,7 @@ class SimpleMachine
 					assembly.push join_nibbles(0xF,r)
 					assembly.push t
 				when "jmp"
-					t = parse_pattern(operand[1])
+					t = parse_pattern(operand[0])
 					assembly.push join_nibbles(0xB,0)
 					assembly.push t
 				when "halt"
@@ -110,22 +117,25 @@ class SimpleMachine
 
 		parse_register = (operand) ->
 			match = operand.match /[R|r](\d+)/
-			register = match[1] if match
-			parse_value(register) if register
+			register = match[1] if match?
+			parse_value(register) if register?
 
 		parse_pattern = (operand) ->
-			match = operand.match /[0-9a-fA-F]+/
-			pattern = match[0] if match
+			match = operand.match /^[0-9a-fA-F]{1,2}/
+			pattern = match[0] if match?
 			if pattern
 				parse_value(pattern)
 			else
 				match = operand.match /\w+/
-				match[0] if match
+				match[0] if match?
 
 		parse_address = (operand) ->
-			match = operand.match /\[([0-9a-fA-F]+)\]/
-			[m, address] = match if match
-			parse_value(address) if address
+			match = operand.match /\[(.*)\]/
+			contents = match[1] if match?
+			if contents?
+				result = parse_register(contents)
+				result = parse_pattern(contents) unless result?
+			result
 
 		parse_data = (data) ->
 			match = data.match /(".*"|\d+)/g
@@ -142,6 +152,8 @@ class SimpleMachine
 
 		for line in string.split('\n')
 			parse_line line
+		
+		#console.log 'assembly: ' + (b.toString(2) for b in assembly)
 
 		# Patch in the labels
 		for byte,i in assembly
@@ -150,11 +162,11 @@ class SimpleMachine
 
 		assembly
 
-	# Reads an assembly as an array of bytes into memory from offset 0xA0
+	# Reads an assembly as an array of bytes into memory from offset PROGRAM_START
 	load: (assembly) ->
 		for byte, i in assembly
 			[i_1, i_2] = @split_byte(i)
-			@memory[i_1 + 0xA][i_2] = byte
+			@memory[i_1 + PROGRAM_START][i_2] = byte
 
 	##
 	#  We have the implementations of the actions in seperate methods so we can hook them for step through representations
@@ -171,7 +183,7 @@ class SimpleMachine
 	and_values: (x,y) -> x & y
 	xor_values: (x,y) -> x ^ y
 	rot_value: (v,x) -> v >> 1 | (v & 1 << 7)
-	jump: (x) -> @program_counter = x - 2 # will be executed next step
+	jump: (x) -> @program_counter = x - STATEMENT_SIZE # will be executed next step
 	halt: () -> #do nothing
 
 	instructions:
@@ -218,7 +230,7 @@ class SimpleMachine
 		0xB:
 			description: "JUMP to the instruction located in the memory cell at address XY if the contents of register R is equal to the contents of register 0"
 			operand: "RXY"
-			function: (r,x,y) -> if @read_register(r) == @read_register(0) then @jump(@read_memory(x,y))
+			function: (r,x,y) -> if @read_register(r) == @read_register(0) then @jump(@join_nibbles(x,y))
 		0xC:
 			description: "HALT execution"
 			operand: "000"
@@ -239,11 +251,13 @@ class SimpleMachine
 exports.SimpleMachine = SimpleMachine
 
 s = new SimpleMachine
-b = s.assemble("load r1,1\nhalt")
+fs = require 'fs'
+asm = fs.readFileSync('./example.asm').toString()
+b = s.assemble asm
+console.log("Assembly: " + b)
 s.load b
 s.run()
-console.log("Assembly: " + b)
 console.log("Registers: " + s.registers)
-console.log("Assembly: ")
+console.log("Memory: ")
 for row in s.memory
 	console.log row
