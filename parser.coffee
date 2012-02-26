@@ -131,4 +131,9 @@ assemble = (string, offset) ->
 
 	assembly
 
-exports.assemble = assemble if exports?
+if exports?
+	exports.assemble = assemble
+
+if window?
+	window.SimpleParser = {}
+	window.SimpleParser.assemble = assemble

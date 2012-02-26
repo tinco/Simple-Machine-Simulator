@@ -119,18 +119,21 @@ class SimpleMachine
 			operand: "RXY"
 			function: (r,x,y) -> if @read_register(r) <= @read_register(0) then @jump(@read_memory(x,y))
 
-exports.SimpleMachine = SimpleMachine if exports?
+if exports?
+	exports.SimpleMachine = SimpleMachine
+	assemble = require('./parser.coffee').assemble
+	s = new SimpleMachine
+	fs = require 'fs'
+	asm = fs.readFileSync('./example.asm').toString()
+	b = assemble asm
+	console.log("Assembly: " + b)
+	s.load b
+	s.run()
+	console.log("Registers: " + s.registers)
+	console.log("Memory: ")
 
-s = new SimpleMachine
-assemble = require('./parser.coffee').assemble
-fs = require 'fs'
-asm = fs.readFileSync('./example.asm').toString()
-b = assemble asm
-console.log("Assembly: " + b)
-s.load b
-s.run()
-console.log("Registers: " + s.registers)
-console.log("Memory: ")
+	for row in s.memory
+		console.log row
 
-for row in s.memory
-	console.log row
+else if window?
+	window.SimpleMachine = SimpleMachine
