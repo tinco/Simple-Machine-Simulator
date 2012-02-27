@@ -2,13 +2,65 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <title>Simple Machine Simulator</title>
-    <link rel="stylesheet" type="text/css" href=""/>
     <meta name="description" content=""/>
     <meta name="keywords" content=""/>
+    <link rel="stylesheet" type="text/css" href=""/>
+	<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
     <script type="text/javascript" src="http://coffeescript.org/extras/coffee-script.js"></script>
     <script type="text/coffeescript" src="parser.coffee"></script>
     <script type="text/coffeescript" src="machine.coffee"></script>
+	<script type="text/coffeescript">
+		$ ->
+			@machine = new SimpleMachine()
+
+			@reset_memory = ->
+				contents = '<tr class="header"><th></th>'
+				for e,i in @machine.memory[0]
+					contents += '<th>' + i.toString(16) + '</th>'
+				contents += '</tr>'
+
+				for row,i in @machine.memory
+					contents += '<tr>'
+					contents += '<th>' + i.toString(16) + '</th>'
+					for e,j in row
+						contents += '<td>0</td>'
+					contents += '</tr>'
+				$('#memory').html(contents)
+
+			@reset_memory()	
+	</script>
   </head>
   <body>
+	<div id="machine">
+		<div class="memory">
+			<h2>Main memory</h2>
+			<table id="memory">
+			</table>
+		</div>
+		<hr />
+		<div class="registers">
+			<h2>Registers</h2>
+			<table id="registers">
+			</table>
+		</div>
+		<hr />
+		<div class="output">
+			<h2>Output</h2>
+			<label for="pc">PC</label>
+			<input type="text" name="pc" id="pc" />
+			<label for="ir">IR</label>
+			<input type="text" name="ir" id="ir" />
+		</div>
+		<hr />
+		<div class="controls">
+			<h2>Controls</h2>
+			<input type="button" name="run" id="run" value="Run" />
+		</div>
+	</div>
+	<hr />
+	<div id="editor">
+		<h2>Editor</h2>
+		<textarea name="editor" id="editor"></textarea>
+	</div>	
   </body>
 </html>
