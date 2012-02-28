@@ -14,6 +14,9 @@ class SimpleMachine
 		@instruction_register = [0,0,0,0]
 		@halted = true
 
+	reset: () ->
+		@constructor()
+
 	run: () ->
 		@halted = false
 		while not @halted

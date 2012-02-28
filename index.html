@@ -15,7 +15,7 @@
 			initialize = ->
 				@machine = new SimpleMachine()
 
-				format = (i) ->
+				@format = (i) ->
 					i.toString(16).toUpperCase()
 
 				@repopulate_memory = ->
@@ -58,20 +58,41 @@
 					repopulate_registers()	
 					repopulate_controls()
 
+				@reset = ->
+					@machine.reset()
+					repopulate()
+					$('#editor').val('')
+
 
 			initialize.apply(window)
 			repopulate()
 
 			after machine, 'store_register', (r, value) ->
+				$('#registers td').eq(r).text(format(value))
 				if r == 0xF
 					output = $('#output')
 					output.val output.val() + String.fromCharCode(value)
 
+			after machine, 'store_memory', (x,y, value) ->
+				$('#memory tr').eq(y + 1).find('td').eq(x + 1).text(format(value))
+
 			$('#run').click (event) ->
-				event.preventDefault();
+				event.preventDefault()
+				machine.run()
+
+			$('#reset').click (event) ->
+				event.preventDefault()
+				reset()
+
+			$('#step').click (event) ->
+				event.preventDefault()
+				machine.step()
+				repopulate_controls()
+
+			$('#load').click (event) ->
+				event.preventDefault()
 				bytes = SimpleParser.assemble $('#editor').val()
 				machine.load bytes
-				machine.run()
 				repopulate()
 	</script>
   </head>
@@ -98,7 +119,10 @@
 		</div>
 		<div class="controls">
 			<h2>Controls</h2>
+			<input type="button" name="load" id="load" value="Load" />
+			<input type="button" name="reset" id="reset" value="Reset" />
 			<input type="button" name="run" id="run" value="Run" />
+			<input type="button" name="step" id="step" value="Step" />
 		</div>
 	</div>
 	<hr />
