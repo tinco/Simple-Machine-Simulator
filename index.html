@@ -6,6 +6,7 @@
     <meta name="keywords" content=""/>
     <link rel="stylesheet" type="text/css" href=""/>
 	<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+	<script type="text/javascript" src="jquery/aop.min.js"></script>
     <script type="text/javascript" src="http://coffeescript.org/extras/coffee-script.js"></script>
     <script type="text/coffeescript" src="parser.coffee"></script>
     <script type="text/coffeescript" src="machine.coffee"></script>
@@ -44,16 +45,27 @@
 				@repopulate_controls = ->
 					$('#pc').val(format(machine.program_counter))
 					$('#ir').val((format(nibble) for nibble in machine.instruction_register).join(' '))
-					$('#output').val('')
+
+				@after = (target, method, f) ->
+					$.aop.around {target: target, method: method},
+						(invocation) ->
+							result = invocation.proceed()
+							f.apply(target, invocation.arguments)
+							return result
 
 				@repopulate = ->
 					repopulate_memory()	
 					repopulate_registers()	
 					repopulate_controls()
 
+
 			initialize.apply(window)
 			repopulate()
 
+			after machine, 'store_register', (r, value) ->
+				if r == 0xF
+					output = $('#output')
+					output.val output.val() + String.fromCharCode(value)
 
 			$('#run').click (event) ->
 				event.preventDefault();
