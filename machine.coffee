@@ -1,10 +1,9 @@
+PROGRAM_START = 0x00 # The memory address of the first instruction
+STATEMENT_SIZE = 2 # Two bytes per statement
+REGISTERS = 16
+MEMORY_WIDTH = 16
+MEMORY_HEIGHT = 16
 class SimpleMachine
-	PROGRAM_START = 0x00 # The memory address of the first instruction
-	STATEMENT_SIZE = 2 # Two bytes per statement
-	REGISTERS = 16
-	MEMORY_WIDTH = 16
-	MEMORY_HEIGHT = 16
-
 	constructor: () ->
 		# Initialize the registers and the memory with 0's
 		@registers = (0 for num in [1..REGISTERS])
@@ -12,19 +11,23 @@ class SimpleMachine
 		@memory = ((0 for num in [1..MEMORY_WIDTH]) for x in [1..MEMORY_HEIGHT])
 		#program starts at 00
 		@program_counter = PROGRAM_START
-		@instruction_register = []
+		@instruction_register = [0,0,0,0]
+		@halted = true
 
 	run: () ->
-		halting = false
-		while not halting
-			# Split address into array coordinates
-			[c_1, c_2] = @split_byte(@program_counter)
-			# Split cells into instruction register fields (which are 4-bits)
-			@instruction_register = @split_byte(@memory[c_1][c_2]).concat(@split_byte(@memory[c_1][c_2 + 1]))
-			# Execute function of instruction
-			@instructions[@instruction_register[0]].function.apply(this, @instruction_register[1..3])
-			halting = @instruction_register[0] == 0xC #HALT
-			@increase_program_counter()
+		@halted = false
+		while not @halted
+			@step()
+
+	step: () ->
+		# Split address into array coordinates
+		[c_1, c_2] = @split_byte(@program_counter)
+		# Split cells into instruction register fields (which are 4-bits)
+		@instruction_register = @split_byte(@memory[c_1][c_2]).concat(@split_byte(@memory[c_1][c_2 + 1]))
+		# Execute function of instruction
+		@instructions[@instruction_register[0]].function.apply(this, @instruction_register[1..3])
+		@halted = @instruction_register[0] == 0xC #HALT
+		@increase_program_counter()
 
 	increase_program_counter: () ->
 		@program_counter += STATEMENT_SIZE
@@ -42,8 +45,8 @@ class SimpleMachine
 	read_memory: (x, y) -> @memory[x][y]
 	store_register: (r, value) ->
 		@registers[r] = value
-		if r == 0xF
-			console.log(String.fromCharCode(value))
+#		if r == 0xF
+#			console.log(String.fromCharCode(value))
 	store_memory: (x, y, value) -> @memory[x][y] = value
 	join_nibbles: (x, y) -> x << 4 | y
 	split_byte: (v) -> [v >> 4, v & 0xF]

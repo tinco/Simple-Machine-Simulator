@@ -11,23 +11,56 @@
     <script type="text/coffeescript" src="machine.coffee"></script>
 	<script type="text/coffeescript">
 		$ ->
-			@machine = new SimpleMachine()
+			initialize = ->
+				@machine = new SimpleMachine()
 
-			@reset_memory = ->
-				contents = '<tr class="header"><th></th>'
-				for e,i in @machine.memory[0]
-					contents += '<th>' + i.toString(16) + '</th>'
-				contents += '</tr>'
+				format = (i) ->
+					i.toString(16).toUpperCase()
 
-				for row,i in @machine.memory
-					contents += '<tr>'
-					contents += '<th>' + i.toString(16) + '</th>'
-					for e,j in row
-						contents += '<td>0</td>'
+				@repopulate_memory = ->
+					contents = '<tr class="header"><th></th>'
+					for e,i in machine.memory[0]
+						contents += '<th>' + format(i) + '</th>'
 					contents += '</tr>'
-				$('#memory').html(contents)
 
-			@reset_memory()	
+					for row,i in @machine.memory
+						contents += '<tr>'
+						contents += '<th>' + format(i) + '</th>'
+						for e,j in row
+							contents += '<td>' + format(e) + '</td>'
+						contents += '</tr>'
+					$('#memory').html(contents)
+
+				@repopulate_registers = ->
+					contents = '<tr class="header">'
+					dataline = '<tr>'
+					for e,i in machine.registers
+						contents += '<th>R' + i + '</th>'
+						dataline += '<td>' + format(e) + '</td>'
+
+					contents += '</tr>' + dataline + '</tr>'
+					$('#registers').html(contents)
+
+				@repopulate_controls = ->
+					$('#pc').val(format(machine.program_counter))
+					$('#ir').val((format(nibble) for nibble in machine.instruction_register).join(' '))
+					$('#output').val('')
+
+				@repopulate = ->
+					repopulate_memory()	
+					repopulate_registers()	
+					repopulate_controls()
+
+			initialize.apply(window)
+			repopulate()
+
+
+			$('#run').click (event) ->
+				event.preventDefault();
+				bytes = SimpleParser.assemble $('#editor').val()
+				machine.load bytes
+				machine.run()
+				repopulate()
 	</script>
   </head>
   <body>
@@ -37,28 +70,27 @@
 			<table id="memory">
 			</table>
 		</div>
-		<hr />
 		<div class="registers">
 			<h2>Registers</h2>
 			<table id="registers">
 			</table>
 		</div>
-		<hr />
 		<div class="output">
 			<h2>Output</h2>
 			<label for="pc">PC</label>
 			<input type="text" name="pc" id="pc" />
 			<label for="ir">IR</label>
 			<input type="text" name="ir" id="ir" />
+			<label for="output">Output</label>
+			<textarea name="output" id="output"></textarea>
 		</div>
-		<hr />
 		<div class="controls">
 			<h2>Controls</h2>
 			<input type="button" name="run" id="run" value="Run" />
 		</div>
 	</div>
 	<hr />
-	<div id="editor">
+	<div class="editor">
 		<h2>Editor</h2>
 		<textarea name="editor" id="editor"></textarea>
 	</div>	
