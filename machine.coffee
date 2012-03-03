@@ -23,10 +23,7 @@ class SimpleMachine
 			@step()
 
 	step: () ->
-		# Split address into array coordinates
-		[c_1, c_2] = @split_byte(@program_counter)
-		# Split cells into instruction register fields (which are 4-bits)
-		@instruction_register = @split_byte(@memory[c_1][c_2]).concat(@split_byte(@memory[c_1][c_2 + 1]))
+		@load_instruction_register()
 		# Execute function of instruction
 		@instructions[@instruction_register[0]].function.apply(this, @instruction_register[1..3])
 		@halted = @instruction_register[0] == 0xC #HALT
@@ -34,6 +31,12 @@ class SimpleMachine
 
 	increase_program_counter: () ->
 		@program_counter += STATEMENT_SIZE
+
+	load_instruction_register: () ->
+		# Split address into array coordinates
+		[c_1, c_2] = @split_byte(@program_counter)
+		# Split cells into instruction register fields (which are 4-bits)
+		@instruction_register = @split_byte(@memory[c_1][c_2]).concat(@split_byte(@memory[c_1][c_2 + 1]))
 
 	# Reads an assembly as an array of bytes into memory from offset PROGRAM_START
 	load: (assembly) ->

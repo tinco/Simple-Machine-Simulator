@@ -61,7 +61,7 @@
 				@reset = ->
 					@machine.reset()
 					repopulate()
-					$('#editor').val('')
+					$('#output').val('')
 
 
 			initialize.apply(window)
@@ -76,9 +76,14 @@
 			after machine, 'store_memory', (x,y, value) ->
 				$('#memory tr').eq(y + 1).find('td').eq(x + 1).text(format(value))
 
+			after machine, 'load_instruction_register', (x,y, value) ->
+				repopulate_controls()
+
 			$('#run').click (event) ->
 				event.preventDefault()
+				clearTimeout(machine.timeout)
 				machine.run()
+				machine.timeout = setTimeout((-> machine.halted = true), 5000)
 
 			$('#reset').click (event) ->
 				event.preventDefault()
@@ -98,38 +103,40 @@
   </head>
   <body>
 	<div id="machine">
-		<div class="memory">
-			<h2>Main memory</h2>
-			<table id="memory">
-			</table>
+		<div id="simulator">
+			<div class="memory">
+				<h2>Main memory</h2>
+				<table id="memory">
+				</table>
+			</div>
+			<div class="registers">
+				<h2>Registers</h2>
+				<table id="registers">
+				</table>
+			</div>
+			<div class="status">
+				<h2>Status</h2>
+				<label for="pc">PC</label>
+				<input type="text" name="pc" id="pc" />
+				<label for="ir">IR</label>
+				<input type="text" name="ir" id="ir" />
+			</div>
+			<div class="output">
+				<h2>Output</h2>
+				<textarea name="output" id="output"></textarea>
+			</div>
+			<div class="controls">
+				<h2>Controls</h2>
+				<input type="button" name="reset" id="reset" value="Reset" />
+				<input type="button" name="run" id="run" value="Run" />
+				<input type="button" name="step" id="step" value="Step" />
+			</div>
 		</div>
-		<div class="registers">
-			<h2>Registers</h2>
-			<table id="registers">
-			</table>
-		</div>
-		<div class="status">
-			<h2>Status</h2>
-			<label for="pc">PC</label>
-			<input type="text" name="pc" id="pc" />
-			<label for="ir">IR</label>
-			<input type="text" name="ir" id="ir" />
-		</div>
-		<div class="output">
-			<h2>Output</h2>
-			<textarea name="output" id="output"></textarea>
-		</div>
-		<div class="controls">
-			<h2>Controls</h2>
-			<input type="button" name="reset" id="reset" value="Reset" />
-			<input type="button" name="run" id="run" value="Run" />
-			<input type="button" name="step" id="step" value="Step" />
-		</div>
+		<div class="editor">
+			<h2>Editor</h2>
+			<textarea name="editor" id="editor"></textarea>
+			<input type="button" name="load" id="load" value="Load"/>
+		</div>	
 	</div>
-	<div class="editor">
-		<h2>Editor</h2>
-		<textarea name="editor" id="editor"></textarea>
-		<input type="button" name="load" id="load" value="Load"/>
-	</div>	
   </body>
 </html>

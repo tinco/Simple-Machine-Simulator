@@ -48,63 +48,83 @@ table {
 }
 /* end reset */
 
-body {
+#machine {
 	font-family: ‘Lucida Console’, Monaco, monospace;
 	font-size: .9em;
 }
 
-h2 {
+#machine h2 {
 	font-family: Verdana, Geneva, sans-serif;
 	font-size: 1.5em;
 	font-weight: bold;
-	margin-bottom: .2em;
-	margin-top: .2em;
+	padding-top: .4em;
+	padding-bottom: .4em;
 }
 
-textarea {
+#machine textarea {
 	margin-left: .2em;
 	margin-bottom: .2em;
 }
 
 #machine {
-	margin: .2em;
+	border: .2em solid #97C0B3;
+	background-color: #527A6D;
+	padding: .2em;
+	color: #FFFAF4;
+	display: block;
+	width: 32em;
 }
 
 #machine > div {
-	float: left;
-	min-width: 32em;
-	margin-right: .4em;
+	margin: .2em;
+	background-color: #4C5666;
+	margin-bottom: .6em;
+	padding: .4em;
 }
 
-#memory {
+#simulator {
+	margin: .2em;
 }
 
 #memory td, #memory th, #registers td, #registers th {
+	background-color: #565763;
+	color: #B38B80;
 	height: 1em;
 	width: 1.6em;
 	text-align: center;
-	border: 1px solid black;
 	font-size: .9em;
 	padding: .2em;
 	margin: 0;
 }
 
-.status > input {
-	font-family: ‘Lucida Console’, Monaco, monospace;
+#memory th, #registers th {
+	color: #9C9EAD;
 }
 
-.controls > h2 {
+#machine .status > input {
+	font-family: ‘Lucida Console’, Monaco, monospace;
+	background-color: #8C7390;
+	border-color: #8C7390;
+	color: white;
+}
+
+#machine .controls > h2 {
 	display: inline;
 }
 
-.controls > input {
+#machine .controls > input {
 	display: inline;
 	vertical-align: .28em;
+	background-color: #8C7390;
+	color: white;
 }
 
 #output {
 	width: 20em;
 	height: 5em;
+	background-color: #8C7390;
+	border: none;
+	color: white;
 }
 
 .editor {
@@ -117,9 +137,17 @@ textarea {
 
 .editor > input {
 	vertical-align: .28em;
+	background-color: #8C7390;
+	color: white;
 }
 
 #editor {
-	width: 35em;
+	width: 29em;
 	height: 15em;
+	background-color: #8C7390;
+	color: white;
+}
+
+body{
+	background-color: #A1A2B2;
 }
