@@ -4,7 +4,7 @@
     <title>Simple Machine Simulator</title>
     <meta name="description" content=""/>
     <meta name="keywords" content=""/>
-    <link rel="stylesheet" type="text/css" href=""/>
+    <link rel="stylesheet" type="text/css" href="application.css"/>
 	<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
 	<script type="text/javascript" src="jquery/aop.min.js"></script>
     <script type="text/javascript" src="http://coffeescript.org/extras/coffee-script.js"></script>
@@ -36,7 +36,7 @@
 					contents = '<tr class="header">'
 					dataline = '<tr>'
 					for e,i in machine.registers
-						contents += '<th>R' + i + '</th>'
+						contents += '<th>R' + format(i) + '</th>'
 						dataline += '<td>' + format(e) + '</td>'
 
 					contents += '</tr>' + dataline + '</tr>'
@@ -108,27 +108,28 @@
 			<table id="registers">
 			</table>
 		</div>
-		<div class="output">
-			<h2>Output</h2>
+		<div class="status">
+			<h2>Status</h2>
 			<label for="pc">PC</label>
 			<input type="text" name="pc" id="pc" />
 			<label for="ir">IR</label>
 			<input type="text" name="ir" id="ir" />
-			<label for="output">Output</label>
+		</div>
+		<div class="output">
+			<h2>Output</h2>
 			<textarea name="output" id="output"></textarea>
 		</div>
 		<div class="controls">
 			<h2>Controls</h2>
-			<input type="button" name="load" id="load" value="Load" />
 			<input type="button" name="reset" id="reset" value="Reset" />
 			<input type="button" name="run" id="run" value="Run" />
 			<input type="button" name="step" id="step" value="Step" />
 		</div>
 	</div>
-	<hr />
 	<div class="editor">
 		<h2>Editor</h2>
 		<textarea name="editor" id="editor"></textarea>
+		<input type="button" name="load" id="load" value="Load"/>
 	</div>	
   </body>
 </html>

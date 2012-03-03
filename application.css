@@ -1,0 +1,125 @@
+/* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+/* end reset */
+
+body {
+	font-family: ‘Lucida Console’, Monaco, monospace;
+	font-size: .9em;
+}
+
+h2 {
+	font-family: Verdana, Geneva, sans-serif;
+	font-size: 1.5em;
+	font-weight: bold;
+	margin-bottom: .2em;
+	margin-top: .2em;
+}
+
+textarea {
+	margin-left: .2em;
+	margin-bottom: .2em;
+}
+
+#machine {
+	margin: .2em;
+}
+
+#machine > div {
+	float: left;
+	min-width: 32em;
+	margin-right: .4em;
+}
+
+#memory {
+}
+
+#memory td, #memory th, #registers td, #registers th {
+	height: 1em;
+	width: 1.6em;
+	text-align: center;
+	border: 1px solid black;
+	font-size: .9em;
+	padding: .2em;
+	margin: 0;
+}
+
+.status > input {
+	font-family: ‘Lucida Console’, Monaco, monospace;
+}
+
+.controls > h2 {
+	display: inline;
+}
+
+.controls > input {
+	display: inline;
+	vertical-align: .28em;
+}
+
+#output {
+	width: 20em;
+	height: 5em;
+}
+
+.editor {
+	clear: both;
+}
+
+.editor > h2 {
+	margin-left: .1em; /* Why!? */
+}
+
+.editor > input {
+	vertical-align: .28em;
+}
+
+#editor {
+	width: 35em;
+	height: 15em;
+}
