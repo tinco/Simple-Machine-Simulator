@@ -1,0 +1,11 @@
+{
+	"name" : "SimpleMachineSimulator",
+	"version" : "0.0.1",
+	"description" : "A simple Virtual Machine for educational purposes, bundled with a website and an ASM parser.",
+	"dependencies": {
+		"coffee-script" : ">= 1.2.0"
+	},
+	"devDependencies": {
+		"vows" : ">= 0.6.2"
+	}
+}
