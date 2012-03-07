@@ -1,8 +1,18 @@
-PROGRAM_START = 0x00 # The memory address of the first instruction
-STATEMENT_SIZE = 2 # Two bytes per statement
-REGISTERS = 16
-MEMORY_WIDTH = 16
-MEMORY_HEIGHT = 16
+constants =
+	PROGRAM_START : 0x00 # The memory address of the first instruction
+	STATEMENT_SIZE : 2 # Two bytes per statement
+	REGISTERS : 16
+	MEMORY_WIDTH : 16
+	MEMORY_HEIGHT : 16
+
+#define all constants globall
+if window?
+	g = window
+else
+	g = global
+for k,v of constants
+	g[k] = v
+
 class SimpleMachine
 	constructor: () ->
 		# Initialize the registers and the memory with 0's
@@ -130,6 +140,10 @@ class SimpleMachine
 
 if exports?
 	exports.SimpleMachine = SimpleMachine
+	for k,v of constants
+		exports[k] = v
+
+if false
 	assemble = require('./parser.coffee').assemble
 	s = new SimpleMachine
 	fs = require 'fs'
