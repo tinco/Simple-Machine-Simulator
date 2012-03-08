@@ -31,7 +31,7 @@ assemble = (string, offset) ->
 					assembly.push pattern
 			when "store"
 				register = parse_register(operand[0])
-				address = parse_address(operand[1])
+				address = parse_value parse_address(operand[1])
 				assembly.push join_nibbles(3, register)
 				assembly.push address
 			when "move"
@@ -103,8 +103,7 @@ assemble = (string, offset) ->
 
 	parse_address = (operand) ->
 		match = operand.match /\[(.*)\]/
-		contents = match[1] if match?
-		contents
+		match[1] if match?
 
 	parse_data = (data) ->
 		match = data.match /(".*"|[0-9a-fA-F]{1,2})/g
