@@ -1,1 +1,5 @@
-Work in progress.
+The Simple Machine Simulator
+
+What you will find here is a simulator of a very simple computer. It is so simple that it has almost no practical use. Still, it is much like the computer you are sitting in front of right now.
+
+I will accept any pull request that makes this machine easier to understand, work better or look prettier so please fork it!
