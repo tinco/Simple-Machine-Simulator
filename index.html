@@ -171,231 +171,231 @@
 	</script>
   </head>
   <body>
-	<div id="machine">
-		<div id="simulator">
-			<div class="memory">
-				<h2>Main memory</h2>
-				<table id="memory">
-				</table>
-			</div>
-			<div class="registers">
-				<h2>Registers</h2>
-				<table id="registers">
-				</table>
-			</div>
-			<div class="status">
-				<h2>Status</h2>
-				<label for="pc">PC</label>
-				<input type="text" name="pc" id="pc" />
-				<label for="ir">IR</label>
-				<input type="text" name="ir" id="ir" />
-			</div>
-			<div class="output">
-				<h2>Output</h2>
-				<textarea name="output" id="output"></textarea>
-			</div>
-			<div class="controls">
-				<h2>Controls</h2>
-				<input type="button" name="reset" id="reset" value="Reset" />
-				<input type="button" name="run" id="run" value="Run" />
-				<input type="button" name="step" id="step" value="Step" />
-			</div>
-		</div>
-		<div class="assembly">
-			<h2>Assembly</h2>
-			<textarea name="assembly" id="assembly"></textarea>
-			<input type="button" name="load" id="load" value="  Load  "/>
-		</div>	
-		<div class="editor">
-			<h2>Editor</h2>
-			<textarea name="editor" id="editor"></textarea>
-			<input type="button" name="assemble" id="assemble" value="Assemble"/>
-		</div>	
-	</div>
-	<div id="explanation">
-		<h2>The Simple Machine Simulator</h2>
-		<p>What you will find here is a simulator of a very simple computer.
-		It is so simple that it has almost no practical use. Still, it is much
-		like the computer you are sitting in front of right now.</p>
-		<p>A computer at its simplest is a device that reads instructions
-		from its memory, executes them and writes the results to somewhere. A
-		computer can not execute just any instruction you give it, it has just
-		a small list of instructions it works with. These instructions have been
-		selected to be as powerful as possible when used together.</p>
-		<p>
-		There are two things that limit this simple machine's usefulness. The
-		first is the amount of memory it has. It has only 256 bytes of addressable
-		memory. This memory has to both fit the program and the data it works on.
-		The memory has been made visible as a matrix of bytes labeled 'Main Memory'.
-		In a real machine the memory is usually located somewhere near the processor.
-		This distance introduces a significant latency when a processor requests a bit
-	   	of memory to be read from or written to.
-		</p>
-		<p>
-		Beneath the memory the registers are shown. They are the workbench for the processor,
-		used to store intermediate results. They are a lot quicker to access than the
-		main memory because they are usually located inside of the processor.
-		</p>
-		<p>
-		Next up are some special registers. The first is the Process Counter, this register
-		holds the address of the instruction the processor is currently executing. Right
-		besides it is the instruction register, this contains the instruction that the
-		processor is currently executing. Every time the processor is finished with the
-		execution of the current instruction it increases the PC with 2, since our
-		instructions are 2 bytes wide, and reads the value of the memory at that address
-		into the IR.
-		</p>
-		<p>
-		The second big limitation of this machine is the input and output it supports. The
-		machine as it is presented on this page can not receive input while it running.
-		This restricts it to non-interactive programs. The only output it has is a small
-		textbox to which it can write characters, much like a printer. It will print any
-		value written to the RF register to the output box as an ASCII character.
-		</p>
-		<h2>Programming and running</h2>
-		<p>
-		You can program this simple machine by writing assembler code into the editor at the
-		bottom. Pressing the 'Assemble' button will assemble your code into bytes which
-		are displayed in the assembly area. Pressing the load button next to the assembly
-		will load your code into the main memory of the machine.
-		</p>
-		<p>
-		There are two ways of running the machine. The first is by pressing the run key. The
-		machine will go into a loop of fetching instructions, executing them and increasing
-		the PC. Since the execution is generally rather fast you might want to try the other
-		button first. The 'Step' button will do only one step of fetching an instruction,
-		executing it and increasing the PC. This will allow you to see exactly what is happening
-		at every step of your program.
-		</p>
-		<p>
-		The reset button will clear all registers and main memory so you can start afresh.
-		</p>
-		<h2>Instruction set</h2>
-		<table id="instructions">
-			<tr>
-				<td>0x1</td>
-				<td>
-					Load register R with the contents of memorycell XY<br />
-					<h3>Example:</h3>
-					<code>load R1,[1A]</code>
-				</td>
-			</tr>
-			<tr>
-				<td>0x2</td>
-				<td>
-					LOAD register R with value XY<br />
-					<h3>Example:</h3>
-					<code>load R1,1A</code>
-				</td>
-			</tr>
-			<tr>
-				<td>0x3</td>
-				<td>
-					STORE contents of register R in memorycell XY<br />
-					<h3>Example:</h3>
-					<code>store R2,[A1]</code>
-				</td>
-			</tr>
-			<tr>
-				<td>0x4</td>
-				<td>
-					MOVE contents of register R into register S<br />
-					<h3>Example:</h3>
-					<code>mov R3,RF</code>
-				</td>
-			</tr>
-			<tr>
-				<td>0x5<br />
-				</td>
-				<td>ADD the contents of registers S and T as if they were in two's complement and store the result in register R<br />
-					<h3>Example:</h3>
-					<code>addi R1,R1,R2</code>
-				</td>
-			</tr>
-			<tr>
-				<td>0x6<br />
-				</td>
-				<td>ADD the contents of registers S and T as if they were floating point numbers and store the result in register R<br />
-					<h3>Example:</h3>
-					<code>addf R1,R1,R2</code>
-				</td>
-			</tr>
-			<tr>
-				<td>0x7<br />
-				</td>
-				<td>OR the contents of registers S and T and store the result in register R<br />
-					<h3>Example:</h3>
-					<code>or R1,R1,R2</code>
-				</td>
-			</tr>
-			<tr>
-				<td>0x8<br />
-				</td>
-				<td>AND the contents of registers S and T and store the result in register R<br />
-					<h3>Example:</h3>
-					<code>and R1,R1,R2</code>
-				</td>
-			</tr>
-			<tr>
-				<td>0x9<br />
-				</td>
-				<td>XOR the contents of registers S and T and store the result in register R<br />
-					<h3>Example:</h3>
-					<code>xor R1,R1,R2</code>
-				</td>
-			</tr>
-			<tr>
-				<td>0xA<br />
-				</td>
-				<td>ROTATE the contents of register R one bit to the right X times, moving the last bit to the first bit<br />
-					<h3>Example:</h3>
-					<code>xor RC,3</code>
-				</td>
-			</tr>
-			<tr>
-				<td>0xB<br />
-				</td>
-				<td>JUMP to the instruction located in the memory cell at address XY if the contents of register R is equal to the contents of register 0<br />
-					<h3>Example:</h3>
-					<code>jmpEQ R4,1A</code><br/>
-				</td>
-			</tr>
-			<tr>
-				<td>0xC<br />
-				</td>
-				<td>HALT execution<br />
-					<h3>Example:</h3>
-					<code>halt</code>
-				</td>
-			</tr>
-			<tr>
-				<td>0xD<br />
-				</td>
-				<td>LOAD the contents of memory cell at the address in register S into register R<br />
-					<h3>Example:</h3>
-					<code>load R1,RA</code>
-				</td>
-			</tr>
-			<tr>
-				<td>0xE<br />
-				</td>
-				<td>STORE the contents of register R in the memory cell at the address in register S<br />
-					<h3>Example:</h3>
-					<code>store R1,RA</code>
-				</td>
-			</tr>
-			<tr>
-				<td>0xF<br />
-				</td>
-				<td>JUMP to the instruction located in the memory cell at address XY if the contents of register R is lower than or equal to the contents of register 0<br />
-					<h3>Example:</h3>
-					<code>jmpLE R1,AF</code>
-				</td>
-			</tr>
-		</table>
-		<div id="footer">
-			Copyright &copy; 2012 <a href="http://tinco.nl">Tinco Andringa</a> All rights reserved.
-		</div>
-	</div>
-</body>
+	  <div id="machine">
+		  <div id="simulator">
+			  <div class="memory">
+				  <h2>Main memory</h2>
+				  <table id="memory">
+				  </table>
+			  </div>
+			  <div class="registers">
+				  <h2>Registers</h2>
+				  <table id="registers">
+				  </table>
+			  </div>
+			  <div class="status">
+				  <h2>Status</h2>
+				  <label for="pc">PC</label>
+				  <input type="text" name="pc" id="pc" />
+				  <label for="ir">IR</label>
+				  <input type="text" name="ir" id="ir" />
+			  </div>
+			  <div class="output">
+				  <h2>Output</h2>
+				  <textarea name="output" id="output"></textarea>
+			  </div>
+			  <div class="controls">
+				  <h2>Controls</h2>
+				  <input type="button" name="reset" id="reset" value="Reset" />
+				  <input type="button" name="run" id="run" value="Run" />
+				  <input type="button" name="step" id="step" value="Step" />
+			  </div>
+		  </div>
+		  <div class="assembly">
+			  <h2>Assembly</h2>
+			  <textarea name="assembly" id="assembly"></textarea>
+			  <input type="button" name="load" id="load" value="  Load  "/>
+		  </div>	
+		  <div class="editor">
+			  <h2>Editor</h2>
+			  <textarea name="editor" id="editor"></textarea>
+			  <input type="button" name="assemble" id="assemble" value="Assemble"/>
+		  </div>	
+	  </div>
+	  <div id="explanation">
+		  <h2>The Simple Machine Simulator</h2>
+		  <p>What you will find here is a simulator of a very simple computer.
+		  It is so simple that it has almost no practical use. Still, it is much
+		  like the computer you are sitting in front of right now.</p>
+		  <p>A computer at its simplest is a device that reads instructions
+		  from its memory, executes them and writes the results to somewhere. A
+		  computer can not execute just any instruction you give it, it has just
+		  a small list of instructions it works with. These instructions have been
+		  selected to be as powerful as possible when used together.</p>
+		  <p>
+		  There are two things that limit this simple machine's usefulness. The
+		  first is the amount of memory it has. It has only 256 bytes of addressable
+		  memory. This memory has to both fit the program and the data it works on.
+		  The memory has been made visible as a matrix of bytes labeled 'Main Memory'.
+		  In a real machine the memory is usually located somewhere near the processor.
+		  This distance introduces a significant latency when a processor requests a bit
+		  of memory to be read from or written to.
+		  </p>
+		  <p>
+		  Beneath the memory the registers are shown. They are the workbench for the processor,
+		  used to store intermediate results. They are a lot quicker to access than the
+		  main memory because they are usually located inside of the processor.
+		  </p>
+		  <p>
+		  Next up are some special registers. The first is the Process Counter, this register
+		  holds the address of the instruction the processor is currently executing. Right
+		  besides it is the instruction register, this contains the instruction that the
+		  processor is currently executing. Every time the processor is finished with the
+		  execution of the current instruction it increases the PC with 2, since our
+		  instructions are 2 bytes wide, and reads the value of the memory at that address
+		  into the IR.
+		  </p>
+		  <p>
+		  The second big limitation of this machine is the input and output it supports. The
+		  machine as it is presented on this page can not receive input while it running.
+		  This restricts it to non-interactive programs. The only output it has is a small
+		  textbox to which it can write characters, much like a printer. It will print any
+		  value written to the RF register to the output box as an ASCII character.
+		  </p>
+		  <h2>Programming and running</h2>
+		  <p>
+		  You can program this simple machine by writing assembler code into the editor at the
+		  bottom. Pressing the 'Assemble' button will assemble your code into bytes which
+		  are displayed in the assembly area. Pressing the load button next to the assembly
+		  will load your code into the main memory of the machine.
+		  </p>
+		  <p>
+		  There are two ways of running the machine. The first is by pressing the run key. The
+		  machine will go into a loop of fetching instructions, executing them and increasing
+		  the PC. Since the execution is generally rather fast you might want to try the other
+		  button first. The 'Step' button will do only one step of fetching an instruction,
+		  executing it and increasing the PC. This will allow you to see exactly what is happening
+		  at every step of your program.
+		  </p>
+		  <p>
+		  The reset button will clear all registers and main memory so you can start afresh.
+		  </p>
+		  <h2>Instruction set</h2>
+		  <table id="instructions">
+			  <tr>
+				  <td>0x1</td>
+				  <td>
+					  Load register R with the contents of memorycell XY<br />
+					  <h3>Example:</h3>
+					  <code>load R1,[1A]</code>
+				  </td>
+			  </tr>
+			  <tr>
+				  <td>0x2</td>
+				  <td>
+					  LOAD register R with value XY<br />
+					  <h3>Example:</h3>
+					  <code>load R1,1A</code>
+				  </td>
+			  </tr>
+			  <tr>
+				  <td>0x3</td>
+				  <td>
+					  STORE contents of register R in memorycell XY<br />
+					  <h3>Example:</h3>
+					  <code>store R2,[A1]</code>
+				  </td>
+			  </tr>
+			  <tr>
+				  <td>0x4</td>
+				  <td>
+					  MOVE contents of register R into register S<br />
+					  <h3>Example:</h3>
+					  <code>mov R3,RF</code>
+				  </td>
+			  </tr>
+			  <tr>
+				  <td>0x5<br />
+				  </td>
+				  <td>ADD the contents of registers S and T as if they were in two's complement and store the result in register R<br />
+					  <h3>Example:</h3>
+					  <code>addi R1,R1,R2</code>
+				  </td>
+			  </tr>
+			  <tr>
+				  <td>0x6<br />
+				  </td>
+				  <td>ADD the contents of registers S and T as if they were floating point numbers and store the result in register R<br />
+					  <h3>Example:</h3>
+					  <code>addf R1,R1,R2</code>
+				  </td>
+			  </tr>
+			  <tr>
+				  <td>0x7<br />
+				  </td>
+				  <td>OR the contents of registers S and T and store the result in register R<br />
+					  <h3>Example:</h3>
+					  <code>or R1,R1,R2</code>
+				  </td>
+			  </tr>
+			  <tr>
+				  <td>0x8<br />
+				  </td>
+				  <td>AND the contents of registers S and T and store the result in register R<br />
+					  <h3>Example:</h3>
+					  <code>and R1,R1,R2</code>
+				  </td>
+			  </tr>
+			  <tr>
+				  <td>0x9<br />
+				  </td>
+				  <td>XOR the contents of registers S and T and store the result in register R<br />
+					  <h3>Example:</h3>
+					  <code>xor R1,R1,R2</code>
+				  </td>
+			  </tr>
+			  <tr>
+				  <td>0xA<br />
+				  </td>
+				  <td>ROTATE the contents of register R one bit to the right X times, moving the last bit to the first bit<br />
+					  <h3>Example:</h3>
+					  <code>xor RC,3</code>
+				  </td>
+			  </tr>
+			  <tr>
+				  <td>0xB<br />
+				  </td>
+				  <td>JUMP to the instruction located in the memory cell at address XY if the contents of register R is equal to the contents of register 0<br />
+					  <h3>Example:</h3>
+					  <code>jmpEQ R4,1A</code><br/>
+				  </td>
+			  </tr>
+			  <tr>
+				  <td>0xC<br />
+				  </td>
+				  <td>HALT execution<br />
+					  <h3>Example:</h3>
+					  <code>halt</code>
+				  </td>
+			  </tr>
+			  <tr>
+				  <td>0xD<br />
+				  </td>
+				  <td>LOAD the contents of memory cell at the address in register S into register R<br />
+					  <h3>Example:</h3>
+					  <code>load R1,RA</code>
+				  </td>
+			  </tr>
+			  <tr>
+				  <td>0xE<br />
+				  </td>
+				  <td>STORE the contents of register R in the memory cell at the address in register S<br />
+					  <h3>Example:</h3>
+					  <code>store R1,RA</code>
+				  </td>
+			  </tr>
+			  <tr>
+				  <td>0xF<br />
+				  </td>
+				  <td>JUMP to the instruction located in the memory cell at address XY if the contents of register R is lower than or equal to the contents of register 0<br />
+					  <h3>Example:</h3>
+					  <code>jmpLE R1,AF</code>
+				  </td>
+			  </tr>
+		  </table>
+		  <div id="footer">
+			  Copyright &copy; 2012 <a href="http://tinco.nl">Tinco Andringa</a> All rights reserved.
+		  </div>
+	  </div>
+  </body>
 </html>
