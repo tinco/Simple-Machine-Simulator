@@ -4,12 +4,43 @@
     <title>Simple Machine Simulator</title>
     <meta name="description" content=""/>
     <meta name="keywords" content=""/>
+    <link rel="stylesheet" type="text/css" href="machine.css"/>
 	<style type="text/css">
 		body{
 			background-color: #A1A2B2;
+			font-family: Verdana, Arial, Helvetica, sans-serif;
+		}
+
+		#machine {
+			float: left;
+			margin-right: 1em;
+		}
+
+		#explanation {
+			padding-top: 0em;
+			margin-right: 1em;
+			font-size: .8em;
+		}
+
+		h2 {
+			font-family: Verdana, Geneva, sans-serif;
+			font-size: 1.5em;
+			font-weight: bold;
+			padding-top: .4em;
+			padding-bottom: .4em;
+		}
+
+		p {
+			padding-top: .4em;
+			padding-bottom: .4em;
+		}
+
+		#footer {
+			padding-top: 4em;
+			font-size: .8em;
+			text-align: center;
 		}
 	</style>
-    <link rel="stylesheet" type="text/css" href="machine.css"/>
 	<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
 	<script type="text/javascript" src="jquery/aop.min.js"></script>
     <script type="text/javascript" src="http://coffeescript.org/extras/coffee-script.js"></script>
@@ -143,5 +174,107 @@
 			<input type="button" name="load" id="load" value="Load"/>
 		</div>	
 	</div>
-  </body>
+	<div id="explanation">
+		<h2>The Simple Machine Simulator</h2>
+		<p>What you will find here is a simulator of a very simple computer.
+		It is so simple that it has almost no practical use. Still, it is much
+		like the computer you are sitting in front of right now.</p>
+		<p>A computer at its simplest is a device that reads instructions
+		from its memory, executes them and writes the results to somewhere. A
+		computer can not execute just any instruction you give it, it has just
+		a small list of instructions it works with. These instructions have been
+		selected to be as powerful as possible when used together.</p>
+		<p>
+		There are two things that limit this simple machine's usefulness. The
+		first is the amount of memory it has. It has only 256 bytes of addressable
+		memory. This memory has to both fit the program and the data it works on.
+		The second is the limited input and output it supports. The machine as it
+		is presented on this page can not receive input while it running. This
+		restricts it to non-interactive programs. The only output it has is
+		a small textbox to which it can write characters, much like a printer.
+		</p>
+		<h2>Instruction set</h2>
+		<table>
+			<tr><th>Instruction</th><th>Description</th><th>Operand</th></tr>
+			<tr>
+				<td>0x1</td>
+				<td>LOAD register R with contents of memorycell XY</td>
+				<td>RXY</td>
+			</tr>
+			<tr>
+				<td>0x2</td>
+				<td>LOAD register R with value XY</td>
+				<td>RXY</td>
+			</tr>
+			<tr>
+				<td>0x3</td>
+				<td>STORE contents of register R in memorycell XY</td>
+				<td>RXY</td>
+			</tr>
+			<tr>
+				<td>0x4</td>
+				<td>MOVE contents of register R into register S</td>
+				<td>0RS</td>
+			</tr>
+			<tr>
+				<td>0x5</td>
+				<td>ADD the contents of registers S and T as if they were in two's complement and store the result in register R</td>
+				<td>RST</td>
+			</tr>
+			<tr>
+				<td>0x6</td>
+				<td>ADD the contents of registers S and T as if they were floating point numbers and store the result in register R</td>
+				<td>RST</td>
+			</tr>
+			<tr>
+				<td>0x7</td>
+				<td>OR the contents of registers S and T and @store the result in register R</td>
+				<td>RST</td>
+			</tr>
+			<tr>
+				<td>0x8</td>
+				<td>AND the contents of registers S and T and @store the result in register R</td>
+				<td>RST</td>
+			</tr>
+			<tr>
+				<td>0x9</td>
+				<td>XOR the contents of registers S and T and @store the result in register R</td>
+				<td>RST</td>
+			</tr>
+			<tr>
+				<td>0xA</td>
+				<td>ROTATE the contents of register R one bit to the right X times, moving the last bit to the first bit</td>
+				<td>R0X</td>
+			</tr>
+			<tr>
+				<td>0xB</td>
+				<td>JUMP to the instruction located in the memory cell at address XY if the contents of register R is equal to the contents of register 0</td>
+				<td>RXY</td>
+			</tr>
+			<tr>
+				<td>0xC</td>
+				<td>HALT execution</td>
+				<td>000</td>
+			</tr>
+			<tr>
+				<td>0xD</td>
+				<td>LOAD the contents of memory cell at the address in register S into register R</td>
+				<td>0RS</td>
+			</tr>
+			<tr>
+				<td>0xE</td>
+				<td>STORE the contents of register R in the memory cell at the address in register S</td>
+				<td>0RS</td>
+			</tr>
+			<tr>
+				<td>0xF</td>
+				<td>JUMP to the instruction located in the memory cell at address XY if the contents of register R is lower than or equal to the contents of register 0</td>
+				<td>RXY</td>
+			</tr>
+		</table>
+		<div id="footer">
+			Copyright &copy; 2012 <a href="http://tinco.nl">Tinco Andringa</a> All rights reserved.
+		</div>
+	</div>
+</body>
 </html>
