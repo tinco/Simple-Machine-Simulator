@@ -34,7 +34,7 @@ assemble = (string, offset) ->
 				address = parse_value parse_address(operand[1])
 				assembly.push join_nibbles(3, register)
 				assembly.push address
-			when "move"
+			when "mov"
 				r = parse_register(operand[1])
 				s = parse_register(operand[0])
 				assembly.push join_nibbles(4,0)

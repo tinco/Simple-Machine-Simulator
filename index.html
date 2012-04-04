@@ -35,6 +35,25 @@
 			padding-bottom: .4em;
 		}
 
+		h3 {
+			margin-top: .4em;
+			font-weight: bold;
+		}
+
+		code {
+			display: inline-block;
+			font-style: italic;
+			margin: .4em;
+		}
+
+		#instructions td {
+			padding-bottom: 1em;
+		}
+
+		#instructions td:first-child {
+			padding-right: 1em;
+		}
+
 		#footer {
 			padding-top: 4em;
 			font-size: .8em;
@@ -252,82 +271,126 @@
 		The reset button will clear all registers and main memory so you can start afresh.
 		</p>
 		<h2>Instruction set</h2>
-		<table>
-			<tr><th>Instruction</th><th>Description</th><th>Operand</th></tr>
+		<table id="instructions">
 			<tr>
 				<td>0x1</td>
-				<td>LOAD register R with contents of memorycell XY</td>
-				<td>RXY</td>
+				<td>
+					Load register R with the contents of memorycell XY<br />
+					<h3>Example:</h3>
+					<code>load R1,[1A]</code>
+				</td>
 			</tr>
 			<tr>
 				<td>0x2</td>
-				<td>LOAD register R with value XY</td>
-				<td>RXY</td>
+				<td>
+					LOAD register R with value XY<br />
+					<h3>Example:</h3>
+					<code>load R1,1A</code>
+				</td>
 			</tr>
 			<tr>
 				<td>0x3</td>
-				<td>STORE contents of register R in memorycell XY</td>
-				<td>RXY</td>
+				<td>
+					STORE contents of register R in memorycell XY<br />
+					<h3>Example:</h3>
+					<code>store R2,[A1]</code>
+				</td>
 			</tr>
 			<tr>
 				<td>0x4</td>
-				<td>MOVE contents of register R into register S</td>
-				<td>0RS</td>
+				<td>
+					MOVE contents of register R into register S<br />
+					<h3>Example:</h3>
+					<code>mov R3,RF</code>
+				</td>
 			</tr>
 			<tr>
-				<td>0x5</td>
-				<td>ADD the contents of registers S and T as if they were in two's complement and store the result in register R</td>
-				<td>RST</td>
+				<td>0x5<br />
+				</td>
+				<td>ADD the contents of registers S and T as if they were in two's complement and store the result in register R<br />
+					<h3>Example:</h3>
+					<code>addi R1,R1,R2</code>
+				</td>
 			</tr>
 			<tr>
-				<td>0x6</td>
-				<td>ADD the contents of registers S and T as if they were floating point numbers and store the result in register R</td>
-				<td>RST</td>
+				<td>0x6<br />
+				</td>
+				<td>ADD the contents of registers S and T as if they were floating point numbers and store the result in register R<br />
+					<h3>Example:</h3>
+					<code>addf R1,R1,R2</code>
+				</td>
 			</tr>
 			<tr>
-				<td>0x7</td>
-				<td>OR the contents of registers S and T and @store the result in register R</td>
-				<td>RST</td>
+				<td>0x7<br />
+				</td>
+				<td>OR the contents of registers S and T and store the result in register R<br />
+					<h3>Example:</h3>
+					<code>or R1,R1,R2</code>
+				</td>
 			</tr>
 			<tr>
-				<td>0x8</td>
-				<td>AND the contents of registers S and T and @store the result in register R</td>
-				<td>RST</td>
+				<td>0x8<br />
+				</td>
+				<td>AND the contents of registers S and T and store the result in register R<br />
+					<h3>Example:</h3>
+					<code>and R1,R1,R2</code>
+				</td>
 			</tr>
 			<tr>
-				<td>0x9</td>
-				<td>XOR the contents of registers S and T and @store the result in register R</td>
-				<td>RST</td>
+				<td>0x9<br />
+				</td>
+				<td>XOR the contents of registers S and T and store the result in register R<br />
+					<h3>Example:</h3>
+					<code>xor R1,R1,R2</code>
+				</td>
 			</tr>
 			<tr>
-				<td>0xA</td>
-				<td>ROTATE the contents of register R one bit to the right X times, moving the last bit to the first bit</td>
-				<td>R0X</td>
+				<td>0xA<br />
+				</td>
+				<td>ROTATE the contents of register R one bit to the right X times, moving the last bit to the first bit<br />
+					<h3>Example:</h3>
+					<code>xor RC,3</code>
+				</td>
 			</tr>
 			<tr>
-				<td>0xB</td>
-				<td>JUMP to the instruction located in the memory cell at address XY if the contents of register R is equal to the contents of register 0</td>
-				<td>RXY</td>
+				<td>0xB<br />
+				</td>
+				<td>JUMP to the instruction located in the memory cell at address XY if the contents of register R is equal to the contents of register 0<br />
+					<h3>Example:</h3>
+					<code>jmpEQ R4,1A</code><br/>
+				</td>
 			</tr>
 			<tr>
-				<td>0xC</td>
-				<td>HALT execution</td>
-				<td>000</td>
+				<td>0xC<br />
+				</td>
+				<td>HALT execution<br />
+					<h3>Example:</h3>
+					<code>halt</code>
+				</td>
 			</tr>
 			<tr>
-				<td>0xD</td>
-				<td>LOAD the contents of memory cell at the address in register S into register R</td>
-				<td>0RS</td>
+				<td>0xD<br />
+				</td>
+				<td>LOAD the contents of memory cell at the address in register S into register R<br />
+					<h3>Example:</h3>
+					<code>load R1,RA</code>
+				</td>
 			</tr>
 			<tr>
-				<td>0xE</td>
-				<td>STORE the contents of register R in the memory cell at the address in register S</td>
-				<td>0RS</td>
+				<td>0xE<br />
+				</td>
+				<td>STORE the contents of register R in the memory cell at the address in register S<br />
+					<h3>Example:</h3>
+					<code>store R1,RA</code>
+				</td>
 			</tr>
 			<tr>
-				<td>0xF</td>
-				<td>JUMP to the instruction located in the memory cell at address XY if the contents of register R is lower than or equal to the contents of register 0</td>
-				<td>RXY</td>
+				<td>0xF<br />
+				</td>
+				<td>JUMP to the instruction located in the memory cell at address XY if the contents of register R is lower than or equal to the contents of register 0<br />
+					<h3>Example:</h3>
+					<code>jmpLE R1,AF</code>
+				</td>
 			</tr>
 		</table>
 		<div id="footer">
