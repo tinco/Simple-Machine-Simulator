@@ -132,9 +132,23 @@
 
 			$('#load').click (event) ->
 				event.preventDefault()
-				bytes = SimpleParser.assemble $('#editor').val()
+				pretty_byte_pairs = $('#assembly').val().split('\n')
+				bytes = []
+				for p in pretty_byte_pairs
+					if p != ""
+						bytes.push parseInt('0x' + p[0] + p[1])
+						bytes.push parseInt('0x' + p[2] + p[3])
 				machine.load bytes
 				repopulate()
+
+			$('#assemble').click (event) ->
+				event.preventDefault()
+				bytes = SimpleParser.assemble $('#editor').val()
+				pretty_bytes = ""
+				for b,i in bytes
+					pretty_bytes += format(b)
+					pretty_bytes += "\n" if i % 2 == 1
+				$('#assembly').val(pretty_bytes)
 	</script>
   </head>
   <body>
@@ -168,10 +182,15 @@
 				<input type="button" name="step" id="step" value="Step" />
 			</div>
 		</div>
+		<div class="assembly">
+			<h2>Assembly</h2>
+			<textarea name="assembly" id="assembly"></textarea>
+			<input type="button" name="load" id="load" value="  Load  "/>
+		</div>	
 		<div class="editor">
 			<h2>Editor</h2>
 			<textarea name="editor" id="editor"></textarea>
-			<input type="button" name="load" id="load" value="Load"/>
+			<input type="button" name="assemble" id="assemble" value="Assemble"/>
 		</div>	
 	</div>
 	<div id="explanation">
@@ -188,10 +207,49 @@
 		There are two things that limit this simple machine's usefulness. The
 		first is the amount of memory it has. It has only 256 bytes of addressable
 		memory. This memory has to both fit the program and the data it works on.
-		The second is the limited input and output it supports. The machine as it
-		is presented on this page can not receive input while it running. This
-		restricts it to non-interactive programs. The only output it has is
-		a small textbox to which it can write characters, much like a printer.
+		The memory has been made visible as a matrix of bytes labeled 'Main Memory'.
+		In a real machine the memory is usually located somewhere near the processor.
+		This distance introduces a significant latency when a processor requests a bit
+	   	of memory to be read from or written to.
+		</p>
+		<p>
+		Beneath the memory the registers are shown. They are the workbench for the processor,
+		used to store intermediate results. They are a lot quicker to access than the
+		main memory because they are usually located inside of the processor.
+		</p>
+		<p>
+		Next up are some special registers. The first is the Process Counter, this register
+		holds the address of the instruction the processor is currently executing. Right
+		besides it is the instruction register, this contains the instruction that the
+		processor is currently executing. Every time the processor is finished with the
+		execution of the current instruction it increases the PC with 2, since our
+		instructions are 2 bytes wide, and reads the value of the memory at that address
+		into the IR.
+		</p>
+		<p>
+		The second big limitation of this machine is the input and output it supports. The
+		machine as it is presented on this page can not receive input while it running.
+		This restricts it to non-interactive programs. The only output it has is a small
+		textbox to which it can write characters, much like a printer. It will print any
+		value written to the RF register to the output box as an ASCII character.
+		</p>
+		<h2>Programming and running</h2>
+		<p>
+		You can program this simple machine by writing assembler code into the editor at the
+		bottom. Pressing the 'Assemble' button will assemble your code into bytes which
+		are displayed in the assembly area. Pressing the load button next to the assembly
+		will load your code into the main memory of the machine.
+		</p>
+		<p>
+		There are two ways of running the machine. The first is by pressing the run key. The
+		machine will go into a loop of fetching instructions, executing them and increasing
+		the PC. Since the execution is generally rather fast you might want to try the other
+		button first. The 'Step' button will do only one step of fetching an instruction,
+		executing it and increasing the PC. This will allow you to see exactly what is happening
+		at every step of your program.
+		</p>
+		<p>
+		The reset button will clear all registers and main memory so you can start afresh.
 		</p>
 		<h2>Instruction set</h2>
 		<table>

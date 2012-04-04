@@ -127,21 +127,13 @@ table {
 	color: white;
 }
 
-.editor {
-	clear: both;
-}
-
-.editor > h2 {
-	margin-left: .1em; /* Why!? */
-}
-
-.editor > input {
+.editor > input, .assembly > input {
 	vertical-align: .28em;
 	background-color: #8C7390;
 	color: white;
 }
 
-#editor {
+#editor, #assembly {
 	width: 29em;
 	height: 15em;
 	background-color: #8C7390;
